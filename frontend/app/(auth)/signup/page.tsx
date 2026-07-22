@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Building2, User, Mail, Lock, Sparkles, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { API_BASE_URL, parseJsonResponse } from '@/lib/api';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function SignupPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/v1/auth/signup', {
+      const res = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -35,21 +36,22 @@ export default function SignupPage() {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await parseJsonResponse(res).catch(() => ({ detail: `Signup failed (${res.status})` }));
         throw new Error(errData.detail || 'Signup failed');
       }
 
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);
 
-      const meRes = await fetch('/api/v1/auth/me', {
+      const meRes = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${data.access_token}` },
       });
       if (meRes.ok) {
-        const userData = await meRes.json();
+        const userData = await parseJsonResponse(meRes);
         setUser(userData);
       }
+
 
       router.push('/documents');
     } catch (err: any) {

@@ -1,4 +1,13 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1').replace(/\/$/, '');
+
+export async function parseJsonResponse(res: Response) {
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    const text = await res.text();
+    throw new Error(`Backend returned non-JSON response (${res.status}): ${text.slice(0, 100)}`);
+  }
+  return await res.json();
+}
 
 export async function fetchWithAuth(url: string, options: RequestInit = {}) {
   let token = localStorage.getItem('access_token');
@@ -8,7 +17,9 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  let response = await fetch(`${API_BASE_URL}${url}`, {
+  const endpoint = url.startsWith('http') ? url : `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+
+  let response = await fetch(endpoint, {
     ...options,
     headers,
   });
@@ -25,13 +36,13 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
         });
 
         if (refreshRes.ok) {
-          const data = await refreshRes.json();
+          const data = await parseJsonResponse(refreshRes);
           localStorage.setItem('access_token', data.access_token);
           localStorage.setItem('refresh_token', data.refresh_token);
 
           // Retry original request with new token
           headers.set('Authorization', `Bearer ${data.access_token}`);
-          response = await fetch(`${API_BASE_URL}${url}`, {
+          response = await fetch(endpoint, {
             ...options,
             headers,
           });

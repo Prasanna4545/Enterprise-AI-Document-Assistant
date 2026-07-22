@@ -20,7 +20,8 @@ import {
   ThumbsDown
 } from 'lucide-react';
 
-import { fetchWithAuth } from '@/lib/api';
+import { fetchWithAuth, API_BASE_URL } from '@/lib/api';
+
 
 interface Citation {
   document_id: string;
@@ -150,7 +151,8 @@ export default function ChatPage() {
 
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch('/api/v1/chat/query/stream', {
+      const response = await fetch(`${API_BASE_URL}/chat/query/stream`, {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

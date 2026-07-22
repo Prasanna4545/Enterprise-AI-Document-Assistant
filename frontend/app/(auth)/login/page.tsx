@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Shield, Sparkles, Lock, Mail, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { API_BASE_URL, parseJsonResponse } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,27 +22,27 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/v1/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await parseJsonResponse(res).catch(() => ({ detail: `Login failed (${res.status})` }));
         throw new Error(errData.detail || 'Login failed');
       }
 
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);
 
       // Fetch User Info
-      const meRes = await fetch('/api/v1/auth/me', {
+      const meRes = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${data.access_token}` },
       });
       if (meRes.ok) {
-        const userData = await meRes.json();
+        const userData = await parseJsonResponse(meRes);
         setUser(userData);
       }
 
@@ -55,13 +56,14 @@ export default function LoginPage() {
 
   const setDemoCredentials = (role: 'ADMIN' | 'EMPLOYEE') => {
     if (role === 'ADMIN') {
-      setEmail('admin@acmecorp.com');
-      setPassword('admin123');
+      setEmail('admin@enterprise.com');
+      setPassword('AdminPass123!');
     } else {
-      setEmail('employee@acmecorp.com');
-      setPassword('employee123');
+      setEmail('employee@enterprise.com');
+      setPassword('EmployeePass123!');
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
