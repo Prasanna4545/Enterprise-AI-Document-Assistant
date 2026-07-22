@@ -14,6 +14,33 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./enterprise_doc_db.db"
     SYNC_DATABASE_URL: str = "sqlite:///./enterprise_doc_db.db"
 
+    @field_validator("DATABASE_URL", mode="after")
+    @classmethod
+    def assemble_async_db_connection(cls, v: str) -> str:
+        """
+        Railway & cloud providers supply plain 'postgresql://' or 'postgres://' URLs.
+        SQLAlchemy's create_async_engine requires an async driver ('postgresql+asyncpg://').
+        Converts raw postgres URLs to use asyncpg automatically while preserving SQLite.
+        """
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        if v.startswith("postgresql://") and not v.startswith("postgresql+"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
+
+    @field_validator("SYNC_DATABASE_URL", mode="after")
+    @classmethod
+    def assemble_sync_db_connection(cls, v: str) -> str:
+        """
+        Normalizes synchronous PostgreSQL URLs to use psycopg2 driver.
+        """
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+psycopg2://", 1)
+        if v.startswith("postgresql://") and not v.startswith("postgresql+"):
+            return v.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return v
+
+
 
     # Redis & Celery
     REDIS_URL: str = "redis://localhost:6379/0"

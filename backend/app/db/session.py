@@ -34,6 +34,8 @@ sync_engine = create_engine(
     pool_pre_ping=True
 )
 
+
+
 SyncSessionLocal = sessionmaker(
     bind=sync_engine,
     autocommit=False,
