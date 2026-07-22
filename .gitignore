@@ -1,0 +1,76 @@
+# Environment secrets
+.env
+*.env
+!.env.example
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.db
+
+# Node
+node_modules/
+.next/
+frontend/.next/
+
+# Vector store data
+chroma_data/
+backend/chroma_data/
+
+# OS/editor
+.DS_Store
+.vscode/# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+.venv/
+ENV/
+
+# FastAPI / Celery / Storage
+backend/storage/
+backend/chroma_data/
+*.log
+celerybeat-schedule
+celerybeat.pid
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+.DS_Store
+*.pem
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local envs
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
