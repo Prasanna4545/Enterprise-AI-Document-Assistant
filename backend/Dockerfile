@@ -2,6 +2,7 @@
 FROM python:3.11-slim
 
 WORKDIR /app
+RUN echo "build version 2"
 
 # Install system dependencies (build tools, libraries for PDF/image processing)
 RUN apt-get update && apt-get install -y --no-install-recommends \

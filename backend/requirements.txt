@@ -1,3 +1,4 @@
+# cache-bust v2
 fastapi==0.110.0
 uvicorn[standard]==0.28.0
 sqlalchemy[asyncio]==2.0.28
